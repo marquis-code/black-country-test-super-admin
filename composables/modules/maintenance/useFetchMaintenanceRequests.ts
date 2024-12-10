@@ -10,7 +10,7 @@ export const useFetchMaintenanceRequests = () => {
     houseId : '',
     page: 1,
     perPage: 1000000,
-    status: 'pending'
+    status: ''
   })
 
   const fetchMaintenanceRequests = async () => {

@@ -1,5 +1,35 @@
 <template>
     <div class="space-y-6">
+      <section class="-mt-8">
+    <!-- Property Information -->
+    <div class="">
+      <h1 class="text-sm font-medium mb-6 bg-white py-3 rounded-lg px-5">Property Information</h1>
+      
+      <div class="space-y-6 bg-white rounded-lg p-5">
+        <div>
+          <p class="text-sm mb-2">Property name</p>
+          <div class="bg-gray-50 p-4 rounded text-sm">{{rentalObj?.house?.name ?? 'Nil'}}</div>
+        </div>
+
+        <div>
+          <p class="text-sm mb-2">Room number</p>
+          <div class="bg-gray-50 p-4 rounded text-sm">{{rentalObj?.room?.name ?? 'Nil'}}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pre-screening Section -->
+    <div>
+      <h2 class="text-sm font-medium mb-6 bg-white py-3 rounded-lg px-5">Pre-screening questions</h2>
+      
+      <div class="space-y-6 bg-white rounded-lg p-5">
+        <div v-for="(item, idx) in rentalObj?.questionAnswers" :key="idx">
+          <p class="text-sm mb-2 text-sm">{{ item?.question?.question ?? 'Nil' }}</p>
+          <div class="bg-gray-50 p-4 text-sm rounded">{{ item?.answer ?? 'Nil' }}</div>
+        </div>
+      </div>
+    </div>
+     </section>
         <!-- Current Residence -->
     <section>
       <div class="mb-6">

@@ -3,6 +3,7 @@ import { useCustomToast } from '@/composables/core/useCustomToast'
 const { showToast } = useCustomToast();
 const loading = ref(false)
 const assignPayload = ref({
+    agreementName: "",
     leaseAgreement: "<html></html>",
     isPublished: false
 })
@@ -13,6 +14,8 @@ export const useAssignLeaseToProperty = () => {
 		loading.value = true
 		const res = await  lease_api.$_assign_lease_to_property(tenantId, houseId, {
             leaseAgreement: `<html>${assignPayload.value.leaseAgreement}</html>`,
+            agreementName: assignPayload.value.agreementName,
+            isPublished: assignPayload.value.isPublished
         }) as any
          
         if (res.type !== 'ERROR') {
@@ -35,9 +38,9 @@ export const useAssignLeaseToProperty = () => {
 	}
 
     const setAssignPayloadObj = (data: any) => {
-        console.log(data, 'caught from composable')
-        assignPayload.value.leaseAgreement = data.leaseAgreement
-        assignPayload.value.isPublished = data.isPublished
+        assignPayload.value.leaseAgreement = data?.leaseAgreement
+        assignPayload.value.isPublished = data?.isPublished
+        assignPayload.value.agreementName = data?.agreementName
 	}
 
 	return { assignLeaseToProperty, loading, assignPayload, setAssignPayloadObj }

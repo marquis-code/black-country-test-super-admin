@@ -9,7 +9,14 @@
 
   <section v-else class="grid lg:grid-cols-2 gap-4 mt-6">
   <div class="bg-white rounded-lg p-4 flex flex-col h-[300px]" v-for="itm in leaseDocumentsList" :key="itm">
-    <div v-html="itm?.leaseAgreementContent" class="p-2 flex-1 text-sm object-cover rounded-lg shadow-sm overflow-hidden"></div>
+      <div class="p-2 flex-1 text-sm object-cover rounded-lg shadow-sm overflow-hidden" v-if="!containsHttps(itm?.leaseAgreementContent)" v-html="itm?.leaseAgreementContent"></div>
+      <div v-else>
+          <iframe
+            :src="`https://docs.google.com/viewer?url=${encodeURIComponent(extractUrl(itm?.leaseAgreementContent))}&embedded=true`"
+            class="w-full h-44"
+            frameborder="0"
+           ></iframe>
+      </div>
     <div class="flex justify-between items-center mt-4">
       <div class="space-y-1">
         <h6 class="text-base font-semibold text-gray-800">Lease document for {{ itm?.signeeName ?? 'Nil' }}</h6>
@@ -33,8 +40,12 @@
 
 <script lang="ts" setup>
 import moment from "moment";
+import { useUrlExtractor } from '@/composables/core/useUrlExtractor';
+import { useHttpsDetector } from '@/composables/core/useUrlCheck'
 import { useFetchLeaseDocuments } from '@/composables/modules/tenants/useFetchLeaseDocuments'
 const { leaseDocumentsList, loading } = useFetchLeaseDocuments()
+const { containsHttps } = useHttpsDetector();
+const { extractUrl } = useUrlExtractor();
 </script>
 
 <style scoped>

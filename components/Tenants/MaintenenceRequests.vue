@@ -1,5 +1,5 @@
 <template>
-    <div class="max-w-4xl mx-auto p-4">
+    <div class="max-w-4xl mx-auto px-4 -mt-3">
       <!-- Tabs Navigation -->
       <div v-if="showTabs" class="flex overflow-x-auto space-x-4 mb-4">
         <button
@@ -74,13 +74,6 @@
   
       <section v-else-if="loading && !maintenanceRequests?.length">
         <div class="h-44 bg-slate-200 rounded animate-pulse"></div>
-        <!-- <div class="rounded-md p-4 w-full mx-auto">
-          <div class="animate-pulse flex space-x-4">
-            <div class="flex-1 space-y-6 py-1">
-              <div class="h-44 bg-slate-200 rounded"></div>
-            </div>
-          </div>
-        </div> -->
       </section>
   
       <section v-else class="flex flex-col justify-between items-center space-y-2 mt-10">
@@ -112,28 +105,42 @@
   
   <script lang="ts" setup>
   import { useFetchMaintenanceRequests } from '@/composables/modules/tenants/useFetchMaintenenceRequests';
+  import { useFetchAdminMaintenanceRequests } from '@/composables/modules/maintenance/useFetchAllMaintenenceRequests'
+const { maintenanceRequestsList, fetching, queryObj } = useFetchAdminMaintenanceRequests()
   import { ref, computed } from 'vue';
   import { useRouter } from 'vue-router';
   
-  const { maintenanceRequests, loading, queryObj } = useFetchMaintenanceRequests();
+  const { maintenanceRequests, loading } = useFetchMaintenanceRequests();
   const router = useRouter();
 
   const props = defineProps({
     showTabs: {
       type: Boolean,
       default: false
-    }
+    },
+    // queryObj: {
+    //   type: Object,
+    //   default: () => {}
+    // },
+    // maintenanceRequests: {
+    //   type: Array,
+    //   default: () => []
+    // },
+    // loading: {
+    //   type: Boolean,
+    //   default: false
+    // }
   })
   
   const activeTab = ref<string>('All');
-  const tabs = ['All', 'Pending', 'Assigned', 'In Progress', 'Completed', 'Cancelled', 'Declined', 'Payment & Invoice'];
+  const tabs = ['All', 'Pending', 'Assigned', 'In Progress', 'Completed', 'Declined', 'Payment & Invoice'];
   
   const statusLabels: { [key: string]: string } = {
     pending: 'Pending',
     assigned: 'Assigned',
     in_progress: 'In Progress',
     completed: 'Completed',
-    cancelled: 'Cancelled',
+    // cancelled: 'Cancelled',
     declined: 'Declined'
   };
   
@@ -142,51 +149,106 @@
     assigned: 'bg-[#E8EDFB] text-[#1D4ED8]',
     in_progress: 'bg-[#FBEAE9] text-[#BA110B]',
     completed: 'bg-[#E7F6EC] text-[#099137]',
-    cancelled: 'bg-[#FBEAE9] text-[#BA110B]',
+    // cancelled: 'bg-[#FBEAE9] text-[#BA110B]',
     declined: 'bg-[#FBEAE9] text-[#BA110B]'
   };
-  
+
   const updateActiveTab = (tab: string) => {
-    activeTab.value = tab;
+  activeTab.value = tab;
+
+  queryObj.value.status = tab
+
+  console.log(tab, 'tab jere')
+
+  const targetQueryObj = queryObj.value; // Use the computed `queryObj`
+
+  if (!targetQueryObj || !targetQueryObj.status) {
+    console.warn('queryObj or status is not properly defined');
+    return; // Safeguard against undefined values
+  }
+
+  if (tab === 'Payment & Invoice') {
+    // Skip setting status for Payment & Invoice
+    targetQueryObj.status = '';
+  } else {
+    const statusMap: { [key: string]: string } = {
+      Pending: 'pending',
+      Assigned: 'assigned',
+      'In Progress': 'in_progress',
+      Completed: 'completed',
+      // Cancelled: 'cancelled',
+      Declined: 'declined',
+    };
+    targetQueryObj.status = statusMap[tab] || 'pending';
+  }
+};
+
   
-    if (tab === 'Payment & Invoice') {
-      // Skip setting queryObj.status for Payment & Invoice
-      queryObj.value.status = '';
-    } else {
-      const statusMap: { [key: string]: string } = {
-        Pending: 'pending',
-        Assigned: 'assigned',
-        'In Progress': 'in_progress',
-        Completed: 'completed',
-        Cancelled: 'cancelled',
-        Declined: 'declined'
-      };
-      queryObj.value.status = statusMap[tab] || 'pending';
-    }
-  };
+  // const updateActiveTab = (tab: string) => {
+  //   activeTab.value = tab;
+  
+  //   if (tab === 'Payment & Invoice') {
+  //     // Skip setting queryObj.status for Payment & Invoice
+  //     queryObj.value.status = '';
+  //   } else {
+  //     const statusMap: { [key: string]: string } = {
+  //       Pending: 'pending',
+  //       Assigned: 'assigned',
+  //       'In Progress': 'in_progress',
+  //       Completed: 'completed',
+  //       Cancelled: 'cancelled',
+  //       Declined: 'declined'
+  //     };
+  //     queryObj.value.status = statusMap[tab] || 'pending';
+  //   }
+  // };
   
   const formatDate = (dateString: string): string => {
     const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
   
-  const filteredRequests = computed(() => {
-    const groupedRequests: { [date: string]: any[] } = maintenanceRequests.value.reduce(
-      (acc: { [key: string]: any[] }, request: any) => {
-        const date = new Date(request.createdAt).toDateString();
-        if (!acc[date]) acc[date] = [];
-        if (
-          activeTab.value === 'All' ||
-          request.status.toLowerCase() === queryObj.value.status
-        ) {
-          acc[date].push(request);
-        }
-        return acc;
-      },
-      {}
-    );
-    return groupedRequests;
-  });
+  // const filteredRequests = computed(() => {
+  //   const groupedRequests: { [date: string]: any[] } = maintenanceRequests.value.reduce(
+  //     (acc: { [key: string]: any[] }, request: any) => {
+  //       const date = new Date(request.createdAt).toDateString();
+  //       if (!acc[date]) acc[date] = [];
+  //       if (
+  //         activeTab.value === 'All' ||
+  //         request.status.toLowerCase() === queryObj.value.status
+  //       ) {
+  //         acc[date].push(request);
+  //       }
+  //       return acc;
+  //     },
+  //     {}
+  //   );
+  //   return groupedRequests;
+  // });
+
+  const requests = computed(() => {
+  return maintenanceRequestsList.value && maintenanceRequestsList.value.length > 0
+    ? maintenanceRequestsList.value
+    : maintenanceRequests.value;
+});
+
+const filteredRequests = computed(() => {
+  const groupedRequests: { [date: string]: any[] } = requests.value.reduce(
+    (acc: { [key: string]: any[] }, request: any) => {
+      const date = new Date(request.createdAt).toDateString();
+      if (!acc[date]) acc[date] = [];
+      if (
+        activeTab.value === 'All' ||
+        request.status.toLowerCase() === queryObj?.value?.status
+      ) {
+        acc[date].push(request);
+      }
+      return acc;
+    },
+    {}
+  );
+  return groupedRequests;
+});
   
   const handleSelectedRequest = (item: any) => {
     localStorage.setItem('selected-request', JSON.stringify(item))

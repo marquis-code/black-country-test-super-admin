@@ -30,7 +30,7 @@
         </button>
   
         <!-- Export Button -->
-        <button  @click="toggleDownloadDropdown" class="flex items-center space-x-1 text-sm px-2 bg-[#F0F2F5] border-[#F0F2F5] border text-gray-700 py-2 rounded hover:bg-gray-200 transition-all">
+        <button @click="toggleDownloadDropdown" class="flex items-center space-x-1 text-sm px-2 bg-[#F0F2F5] border-[#F0F2F5] border text-gray-700 py-2 rounded hover:bg-gray-200 transition-all">
           <img :src="dynamicIcons('gray-download')" />
           <span>Export</span>
         </button>
@@ -232,14 +232,6 @@
         </div>
       </div>
     </div>
-
-    <!-- <section v-if="loadingTenants">
-      <div class="rounded-md p-4 w-full mx-auto mt-10">
-        <div class="animate-pulse flex space-x-4">
-          <div class="h-44 w-full bg-slate-200 rounded"></div>
-        </div>
-      </div>
-     </section> -->
     
 
     <TenantConfigTableModal
@@ -309,7 +301,7 @@ const { clearLocalStorage } = useClearLocalStorage();
 // Define the method to handle the download
 const downloadData = (exportType: any) => {
   // Call the export function with the desired format (csv, pdf, or excel)
-  exportPaginatedData('/houses', exportType, 'house_data_export', ['firstName', 'rentalApplication.house.name', 'rentalApplication.room.name', 'rentalApplication.room.rentFrequency', 'house.paymentCount', 'status']);
+  exportPaginatedData('/tenants', exportType, 'tenant_data_export', ['firstName', 'rentalApplication.house.name', 'rentalApplication.room.name', 'rentalApplication.room.rentFrequency', 'house.paymentCount', 'status']);
 }
 const route = useRoute();
 const router = useRouter();

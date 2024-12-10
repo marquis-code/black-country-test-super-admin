@@ -1,27 +1,31 @@
 <template>
   <div>
     <div class="bg-gray-100">
-      <div class="flex flex-wrap justify-between items-center bg-white border p-4 shadow px-3 lg:px-10">
-        <div class="flex items-center space-x-4">
+      <div class="flex flex-wrap justify-between items-center bg-white border shadow px-3 lg:px-10">
+        <div class="flex items-center space-x-4 py-3">
           <button @click="router.back()"
-            class="flex items-center text-gray-600 bg-gray-100 text-sm py-2 px-4 rounded-md hover:bg-gray-200 hover:text-black">
+            class="flex items-center text-gray-600 bg-gray-100 text-xs py-3 font-semibold px-4 rounded-md hover:bg-gray-200 hover:text-black">
             <span>&larr;</span>
             <span class="ml-2">Back</span>
           </button>
-          <h1 class="text-lg font-semibold">{{ payload?.documentName }}</h1>
+          <h1 class="text-sm font-semibold">{{ leasePayload?.documentName ?? 'Nil' }}</h1>
         </div>
-        <button
-          class="flex items-center px-4 text-sm py-2.5 text-sm bg-blue-500 text-white text-sm font-medium gap-x-3 rounded-md shadow-md cursor-pointer hover:bg-blue-600"
-          v-if="isDocumentEdited" @click="submitLeaseDocument">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-            stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M10 17l5-5-5-5" />
-            <path d="M13.8 12H3m9 10a10 10 0 1 0 0-20" />
-          </svg>
-           {{  uploading ? 'processing' : 'Submit Lease' }}
+        <div class="flex justify-between items-center text-xs gap-x-3 -mt-4">
+          <button
+          class="flex items-center px-4 text-sm py-3 text-xs bg-[#5B8469] text-white text-sm font-medium gap-x-3 rounded-md shadow-md cursor-pointer"
+          v-if="isDocumentEdited" @click="submitLeaseDocument('save-and-send')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+           {{  uploading ? 'processing' : 'Save and send' }}
         </button>
+        <button
+          class="flex items-center px-4 text-sm py-3 text-xs bg-[#5B8469] text-white text-sm font-medium gap-x-3 rounded-md shadow-md cursor-pointer"
+          v-if="isDocumentEdited" @click="submitLeaseDocument('save-and-exit')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+           {{  uploading ? 'processing' : 'Save and Exit' }}
+        </button>
+        </div>
         <label
-          class="flex items-center px-4 text-sm py-2.5 text-sm bg-blue-500 text-white text-sm font-medium gap-x-3 rounded-md shadow-md cursor-pointer hover:bg-blue-600">
+          class="flex items-center px-4 text-sm py-3 text-xs bg-[#5B8469] text-white text-sm font-medium gap-x-3 rounded-md shadow-md cursor-pointer">
           <input type="file" class="hidden" @change="handleFileUpload" accept="application/pdf" />
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
             stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -70,7 +74,7 @@ export default {
     };
 
 
-const submitLeaseDocument = async () => {
+const submitLeaseDocument = async (item) => {
   if (!instance.value) return
 
   try {
@@ -91,8 +95,13 @@ const submitLeaseDocument = async () => {
       lastModified: Date.now()
     })
 
+    const agreementObj = {
+      agreementName: leasePayload.value.documentName,
+      isPublished: item === 'save-and-send' ? true : false
+    }
+
     // Upload the file using our composable
-    const { url, error } = await pdfUploadFile(pdfFile)
+    const { url, error } = await pdfUploadFile(pdfFile, agreementObj)
 
     if (error) {
       console.error('Upload failed:', error)
@@ -137,8 +146,23 @@ const convertPdfToImage = async (pdfBlob) => {
   return new File([imageBlob], "converted-image.png", { type: "image/png" });
 };
 
+const leasePayload = ref('')
+
 
     onMounted(() => {
+      const storedData = localStorage.getItem('lease-template-payload');
+        // Safely parse the data only if it exists
+        if (storedData) {
+          try {
+            leasePayload.value = JSON.parse(storedData);
+          } catch (error) {
+            console.error("Error parsing lease-template-payload:", error);
+            leasePayload.value = {}; // Provide a default value if parsing fails
+          }
+        } else {
+          leasePayload.value = {}; // Provide a default value if nothing is stored
+        }
+
       const path = "/webviewer";
       WebViewer({ path }, viewerDiv.value).then((webviewerInstance) => {
         instance.value = webviewerInstance.Core.documentViewer;
@@ -151,7 +175,7 @@ const convertPdfToImage = async (pdfBlob) => {
       });
     });
 
-    return { viewerDiv, handleFileUpload, submitLeaseDocument, isDocumentEdited, submissionMessage };
+    return { viewerDiv, handleFileUpload, submitLeaseDocument, isDocumentEdited, submissionMessage, leasePayload, uploading, assigning, uploadResponse };
   },
 };
 </script>

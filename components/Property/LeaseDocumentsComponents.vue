@@ -2,59 +2,64 @@
   <main>
     <main class="min-h-screen">
       <div>
-        <section class="flex justify-between items-center">
-          <div class="flex space-x-6 mb-4">
-            <span
-              @click="activeTab = 'all'"
-              :class="[
-                activeTab === 'all'
-                  ? 'border-[#5B8469] border-b-2 text-[#5B8469]'
-                  : 'text-gray-700',
-              ]"
-              class="text-sm font-medium text-gray-500 pb-2 cursor-pointer"
-              >All lease documents</span
-            >
-            <span
-              @click="activeTab = 'pending'"
-              :class="[
-                activeTab === 'pending'
-                  ? 'border-[#5B8469] border-b-2 text-[#5B8469]'
-                  : 'text-gray-700',
-              ]"
-              class="text-sm font-medium text-gray-500 pb-2 cursor-pointer"
-              >Pending lease</span
-            >
-            <span
-              @click="activeTab = 'signed'"
-              :class="[
-                activeTab === 'signed'
-                  ? 'border-[#5B8469] border-b-2 text-[#5B8469]'
-                  : 'text-gray-700',
-              ]"
-              class="text-sm font-medium text-gray-500 pb-2 cursor-pointer"
-              >Signed lease</span
-            >
-            <span
-              @click="activeTab = 'draft'"
-              :class="[
-                activeTab === 'draft'
-                  ? 'border-[#5B8469] border-b-2 text-[#5B8469]'
-                  : 'text-gray-700',
-              ]"
-              class="text-sm font-medium text-gray-500 pb-2 cursor-pointer"
-              >Draft</span
-            >
-          </div>
-          <div class="pb-3">
-            <button
-              @click="generateLeaseDocument = true"
-              class="bg-[#292929] text-white py-3 flex items-center gap-x-2 px-4 text-sm rounded-md"
-            >
-              <img :src="dynamicIcons('white-add')" />
-              New Lease
-            </button>
-          </div>
-        </section>
+        <section class="lg:flex justify-between items-center overflow-x-auto">
+  <div class="flex space-x-6 mb-4 overflow-x-auto scrollbar-hide">
+    <span
+      @click="activeTab = 'all'"
+      :class="[
+        activeTab === 'all'
+          ? 'border-[#5B8469] border-b-2 text-[#5B8469]'
+          : 'text-gray-700',
+      ]"
+      class="text-sm font-medium text-gray-500 pb-2 cursor-pointer whitespace-nowrap"
+    >
+      All lease documents
+    </span>
+    <span
+      @click="activeTab = 'pending'"
+      :class="[
+        activeTab === 'pending'
+          ? 'border-[#5B8469] border-b-2 text-[#5B8469]'
+          : 'text-gray-700',
+      ]"
+      class="text-sm font-medium text-gray-500 pb-2 cursor-pointer whitespace-nowrap"
+    >
+      Pending lease
+    </span>
+    <span
+      @click="activeTab = 'signed'"
+      :class="[
+        activeTab === 'signed'
+          ? 'border-[#5B8469] border-b-2 text-[#5B8469]'
+          : 'text-gray-700',
+      ]"
+      class="text-sm font-medium text-gray-500 pb-2 cursor-pointer whitespace-nowrap"
+    >
+      Signed lease
+    </span>
+    <span
+      @click="activeTab = 'draft'"
+      :class="[
+        activeTab === 'draft'
+          ? 'border-[#5B8469] border-b-2 text-[#5B8469]'
+          : 'text-gray-700',
+      ]"
+      class="text-sm font-medium text-gray-500 pb-2 cursor-pointer whitespace-nowrap"
+    >
+      Draft
+    </span>
+  </div>
+  <div class="pb-3">
+    <button
+      @click="generateLeaseDocument = true"
+      class="bg-[#292929] text-white py-3 flex items-center gap-x-2 px-4 text-sm rounded-md whitespace-nowrap"
+    >
+      <img :src="dynamicIcons('white-add')" />
+      New Lease
+    </button>
+  </div>
+</section>
+
         <section
           v-if="filteredLeaseAgreements.length && !loading"
           class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
@@ -67,9 +72,7 @@
             <div class="flex justify-between items-start">
               <div class="space-y-2 w-full">
                 <div
-                  v-if="
-                    isLeaseAgreementContentEmpty(lease.leaseAgreementContent)
-                  "
+                  v-if="isLeaseAgreementContentEmpty(lease.leaseAgreementContent)"
                   class="flex justify-center items-center w-full"
                 >
                   <img
@@ -78,11 +81,22 @@
                     class="h-32 w-full"
                   />
                 </div>
+                <!-- v-if="!isUrl(selectedLease?.leaseAgreementContent)" -->
+              <section v-else>
+                <!-- {{ lease.leaseAgreementContent }} -->
                 <div
-                  v-else
-                  v-html="shortenedText(lease.leaseAgreementContent)"
+                  v-if="!containsHttps(lease?.leaseAgreementContent)"
+                  v-html="shortenedText(lease?.leaseAgreementContent)"
                   class="p-4 rounded-lg text-[10px] overflow-hidden min-h-[150px] max-h-[150px]"
                 ></div>
+                <div v-else>
+                  <iframe
+                      :src="`https://docs.google.com/viewer?url=${encodeURIComponent(extractUrl(lease?.leaseAgreementContent))}&embedded=true`"
+                      class="w-full h-60"
+                      frameborder="0"
+                    ></iframe>
+                </div>
+              </section>
                 <div class="flex justify-between items-center">
                   <h6 class="text-base font-semibold text-gray-800 truncate">
                     {{ lease.signeeName ?? "Nil" }}
@@ -409,6 +423,8 @@
 
 <script setup lang="ts">
 import moment from "moment";
+import { useUrlExtractor } from '@/composables/core/useUrlExtractor';
+import { useHttpsDetector } from '@/composables/core/useUrlCheck'
 import { useSaveAndSend } from '@/composables/modules/lease/saveAndSend';
 import { useUser } from "@/composables/auth/user";
 import { useDeleteLeaseTemplate } from "@/composables/modules/lease/delete";
@@ -421,6 +437,8 @@ const { showToast } = useCustomToast();
 import { useRouter } from "vue-router";
 const { deleteLeaseTemplate, loading: deleting } = useDeleteLeaseTemplate();
 const { setSaveAndSendPayloadObj, handleSaveAndSend, processingSaveAndSend } = useSaveAndSend();
+const { containsHttps } = useHttpsDetector();
+const { extractUrl } = useUrlExtractor();
 
 const { downloadPdf, isDownloading } = useDownloadPdf();
 
@@ -563,3 +581,16 @@ const isLeaseAgreementContentEmpty = (content: string) => {
   return !doc.body.textContent?.trim();
 };
 </script>
+
+
+<style scoped>
+.pdf-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  background: #f5f5f5;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+</style>

@@ -110,6 +110,6 @@ export const useGetProperties = () => {
         metadata,
         filters,
         setPaginationObj,
-        applyFilters, // Expose applyFilters for external usage
+        applyFilters, 
     };
 };

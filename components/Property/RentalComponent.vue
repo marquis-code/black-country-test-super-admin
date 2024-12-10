@@ -19,7 +19,7 @@
             </a>
           </li>
           <li>
-            <a class="pb-3" href="#" @click="setActiveTab('CANCELLED')" :class="activeTab === 'CANCELLED' ? 'text-green-700 font-medium border-b-4 border-[#326543] pb-1' : 'text-[#475367] font-medium'">
+            <a class="pb-3" href="#" @click="setActiveTab('REJECTED')" :class="activeTab === 'REJECTED' ? 'text-green-700 font-medium border-b-4 border-[#326543] pb-1' : 'text-[#475367] font-medium'">
               Declined
             </a>
           </li>
@@ -41,7 +41,7 @@
                 <p class="text-sm text-gray-500">{{ application?.tenant?.email }}</p>
               </div>
             </div>
-            <div v-if="application.status === 'NEW'"
+            <div v-if="application.status === 'RENT_ACTIVE'"
               class="bg-blue-100 text-blue-700 px-2.5 py-1.5 rounded-full text-xs font-semibold">
               New
             </div>
@@ -53,7 +53,7 @@
               class="bg-yellow-100 text-yellow-700 px-2.5 py-1.5 rounded-full text-xs font-semibold">
               Pending
             </div>
-            <div v-if="application.status === 'CANCELLED'"
+            <div v-if="application.status === 'REJECTED'"
               class="bg-red-100 text-red-700 px-2.5 py-1.5 rounded-full text-xs font-semibold">
               Declined
             </div>

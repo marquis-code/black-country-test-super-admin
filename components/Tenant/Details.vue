@@ -66,7 +66,7 @@
     <TenantChecklist v-if="activeTab === 'checklist'" />
     <!-- <TenantMaintanceInfo v-if="activeTab === 'maintenanceRequest'" /> -->
       <!-- Current Residence -->
-       <section class="space-y-6" v-if="activeTab === 'tenantDetails'">
+    <section class="space-y-6" v-if="activeTab === 'tenantDetails'">
         <div class="max-w-2xl mx-auto">
     <!-- Property Information -->
     <div class="mb-8">
@@ -167,7 +167,7 @@
         />
       </div>
     </section>
-       </section>
+    </section>
 </main>
 </template>
 

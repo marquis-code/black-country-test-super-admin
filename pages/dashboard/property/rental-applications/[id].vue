@@ -17,6 +17,14 @@
           </button>
           <span class="text-xl font-medium text-[#1D2739]">{{rentalObj?.tenant?.firstName}} {{rentalObj?.tenant?.lastName}}</span>
         </div>
+
+        <p
+          :class="`${computedColorMap(rentalObj.status)} text-sm px-3 py-2 rounded-lg border-[0.5px]`"
+        >
+          {{ rentalObj.status }}
+        </p>
+
+        <!-- <p class="text-sm px-3 py-2 rounded-lg border-[0.5px]">{{ rentalObj.status }}</p> -->
         <!-- <div v-if="rentalObj.status !== 'PENDING'" class="flex space-x-4">
           <button v-if="rentalObj.status === 'APPROVED'" @click="declineModal = true" class="bg-[#EBE5E0] text-sm text-[#292929] px-6 py-2.5 rounded-md">
             Decline
@@ -136,6 +144,27 @@ const reason = ref('');
 const cancel = () => {
   reason.value = '';
   // You can add other logic if needed
+};
+
+// const  computedColorMap = (status: any) => {
+//     const colorMap = {
+//        'PENDING' : 'text-[#DD900D] bg-[#FEF6E7]',
+//        'APPROVED' : 'bg-[#E7F6EC] text-[#099137]',
+//        'DECLINED' : 'bg-[#FBEAE9] text-[#D92D20]'
+//     }
+
+//     return colorMap[status] ?? 'Nil'
+// }
+
+const computedColorMap = (status) => {
+  const colorMap = {
+    PENDING: 'text-[#DD900D] bg-[#FEF6E7]',
+    APPROVED: 'bg-[#E7F6EC] text-[#099137]',
+    REJECTED: 'bg-[#FBEAE9] text-[#D92D20]',
+    RENT_ACTIVE: 'text-[#1D4ED8] bg-[#E8EDFB]'
+  };
+
+  return colorMap[status] ?? 'Nil';
 };
 
 // Continue action

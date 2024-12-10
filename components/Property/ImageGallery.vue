@@ -53,11 +53,6 @@
       </div>
     </div>
     <div>
-      <!-- <button class="bg-blue-500 text-white px-4 py-2 rounded-md" @click="openCarousel">
-        View All Images
-      </button> -->
-      
-      <!-- {{propertyObj}} -->
       <CoreCarouselModal v-if="isCarouselOpen" :property="propertyObj" />
     </div>
     <!-- <CoreCarouselModal v-if="isCarouselOpen" :property="propertyObj" /> -->

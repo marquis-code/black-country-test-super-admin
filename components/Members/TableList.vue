@@ -198,7 +198,7 @@
                         </li>
                         <li>
                           <a
-                            @click.prevent="handleDropdownClick('edit', member)"
+                            @click.prevent="handleDropdownClick('deactivate', member)"
                             href="#"
                             class="block flex items-center gap-x-2 px-4 py-3 hover:bg-gray-100 text-start"
                           >
@@ -208,7 +208,7 @@
                         </li>
                         <li>
                           <a
-                            @click.prevent="handleDropdownClick('duplicate', member)"
+                            @click.prevent="handleDropdownClick('remove', member)"
                             href="#"
                             class="block flex items-center gap-x-2 px-4 py-3 hover:bg-gray-100 text-start"
                           >
@@ -420,10 +420,18 @@
     if (action === "view") {
       return router.push(`/dashboard/members/${item.id}`);
     }
-  
-    if (action === "edit") {
-      return router.push(`/dashboard/members/${item.id}/edit`);
+
+    if (action === "deactivate") {
+      // return router.push(`/dashboard/members/${item.id}`);
     }
+
+    if (action === "remive") {
+      // return router.push(`/dashboard/members/${item.id}`);
+    }
+  
+    // if (action === "edit") {
+    //   return router.push(`/dashboard/members/${item.id}/edit`);
+    // }
     closeDropdown();
     emit(action, item);
   };
